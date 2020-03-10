@@ -1,2 +1,0 @@
-# cors-proxy
-Begin app
