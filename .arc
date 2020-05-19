@@ -2,6 +2,6 @@
 begin-app
 
 @http
-get /url
+get /
 
 @static
