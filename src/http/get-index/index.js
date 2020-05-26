@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const FileType = require('file-type');
+const sharp = require('sharp');
 
 exports.handler = async function http(req) {
   const url = req.queryStringParameters.url;
@@ -10,32 +11,40 @@ exports.handler = async function http(req) {
 
     const fileType = await FileType.fromBuffer(imgBuffer);
 
-    console.log(fileType);
+    const resized = sharp(imgBuffer)
+      .resize({
+        width: 512,
+        fit: sharp.fit.inside,
+        withoutEnlargement: true
+      })
+      .toFormat('jpeg');
 
-    if (getUrl.status === 200) {
-      if (fileType && fileType.mime.includes('image') && imgBuffer) {
-        return {
-          headers: {
-            'Access-Control-Allow-Origin': '*'
-          },
-          body: JSON.stringify({ imgBuffer })
-        };
-      } else {
-        return {
-          headers: {
-            'Access-Control-Allow-Origin': '*'
-          },
-          body: JSON.stringify({
-            err: 'Invalid image type'
-          })
-        };
-      }
-    } else {
+    const resizedBuffer = await resized.toBuffer();
+
+    if (getUrl.status !== 200) {
       return {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify({ err: 'Something went wrong getting image data' })
+      };
+    }
+
+    if (fileType && fileType.mime.includes('image') && resizedBuffer) {
+      return {
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({ imgBuffer: resizedBuffer })
+      };
+    } else {
+      return {
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({
+          err: 'Invalid image type'
+        })
       };
     }
   } catch (err) {
