@@ -12,6 +12,6 @@
   "dependencies": {
     "file-type": "^14.4.0",
     "node-fetch": "^2.6.0",
-    "sharp": "^0.25.3"
+    "sharp": "^0.30.5"
   }
 }
